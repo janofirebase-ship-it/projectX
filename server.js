@@ -1,6 +1,10 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
+const express = require('express');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const Car = require('./models/Car.js');
+const CarDetail = require('./models/CarDetail.js');
+
+dotenv.config();
 import CarDetail from './models/CarDetail.js';
 
 dotenv.config();
@@ -77,7 +81,7 @@ app.get('/health', (_req, res) => {
 });
 
 // Export for Vercel serverless
-export default app;
+module.exports = app;
 
 // Remove server startup for Vercel
 // const startServer = async () => {

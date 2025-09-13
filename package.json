@@ -2,7 +2,6 @@
   "name": "express-mongo-app",
   "version": "1.0.0",
   "description": "A simple Express.js app with MongoDB",
-  "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

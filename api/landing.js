@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 let isConnected = false;
 
@@ -14,13 +14,14 @@ const connectDB = async () => {
   }
 };
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
     await connectDB();
+    // Query the cars collection directly for landing data
     const landingData = await mongoose.connection.db.collection('cars').findOne({});
 
     if (!landingData) {
@@ -30,10 +31,11 @@ export default async function handler(req, res) {
       });
     }
 
+    // Remove MongoDB _id field
     const { _id, ...cleanData } = landingData;
     res.status(200).json(cleanData);
   } catch (error) {
     console.error('Error fetching landing data:', error);
     res.status(500).json({ error: 'Server error' });
   }
-}
+};

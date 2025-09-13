@@ -1,4 +1,4 @@
-export default function handler(req, res) {
+module.exports = (req, res) => {
   res.status(200).json({
     message: 'Hello World!',
     status: 'Server is running',
@@ -7,4 +7,4 @@ export default function handler(req, res) {
       carDetails: '/api/cars/[id]'
     }
   });
-}
+};
