@@ -1,34 +1,43 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import Car from './models/Car.js';
 import CarDetail from './models/CarDetail.js';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+
+// MongoDB connection with better error handling for serverless
+let isConnected = false;
 
 const connectDB = async () => {
+  if (isConnected) return;
+
   try {
     await mongoose.connect(process.env.MONGO_URI);
+    isConnected = true;
     console.log('MongoDB connected successfully');
   } catch (error) {
     console.error('MongoDB connection error:', error);
-    process.exit(1);
+    throw error; // Don't exit process in serverless
   }
 };
 
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
 
+// Remove static file serving for Vercel (use Vercel's static hosting instead)
+// app.use(express.static('public'));
+
+// Routes
 app.get('/', (_req, res) => {
   res.json({ message: 'Hello World!', status: 'Server is running' });
 });
 
 app.get('/api/cars/:id', async (req, res) => {
   try {
+    await connectDB();
     const { id } = req.params;
     const carDetail = await CarDetail.findOne({ id });
 
@@ -45,6 +54,7 @@ app.get('/api/cars/:id', async (req, res) => {
 
 app.get('/api/landing', async (_req, res) => {
   try {
+    await connectDB();
     const landingData = await mongoose.connection.db.collection('cars').findOne({});
 
     if (!landingData) {
@@ -66,11 +76,15 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-const startServer = async () => {
-  await connectDB();
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-};
+// Export for Vercel serverless
+export default app;
 
-startServer();
+// Remove server startup for Vercel
+// const startServer = async () => {
+//   await connectDB();
+//   app.listen(PORT, () => {
+//     console.log(`Server running on port ${PORT}`);
+//   });
+// };
+
+// startServer();
